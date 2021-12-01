@@ -12,11 +12,15 @@
         height: 580px;
         width: 1275px;
         border: solid 1px black;
+        margin-top: 15px;
+    }
+    .filter {
+        margin-top: 15px;
     }
 </style>
 </head>
 <body>
-    <form action="">
+    <div class="filter">
         <label for="cars">Tipo de Geração:</label>
         <select name="geracao" id="geracao">
             <option value="all">Todos</option>
@@ -27,9 +31,8 @@
             <option value="waste">Waste</option>
             <option value="other">Outros</option>
         </select>
-        <br><br>
         <input type="button" onclick="reloadMap()" value="Filtrar">
-    </form>
+    </div>
     <div id='mapDIV'></div>
 <script>
     const mbAttr = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
@@ -38,7 +41,7 @@
         id: 'mapbox.streets',
         attribution: mbAttr
     });
-    var map = L.map(document.getElementById('mapDIV'), { center: [-14.2350, -51.9253], zoom: 5, layers: [basemap] });
+    var map = L.map(document.getElementById('mapDIV'), { center: [-14.2350, -51.9253], zoom: 4, layers: [basemap] });
     const keyVal = {
         hidro: "Hidrelétrica",
         eol: "Eólica",
