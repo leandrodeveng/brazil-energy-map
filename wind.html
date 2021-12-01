@@ -9,14 +9,13 @@
   <script src="dados_energeticos_brasil.geojson"></script>
 <style>
     #mapDIV{
-        height: 850px;
-        width: 1800px;
+        height: 580px;
+        width: 1275px;
         border: solid 1px black;
     }
 </style>
 </head>
 <body>
-    <div id='mapDIV'></div>
     <form action="">
         <label for="cars">Tipo de Geração:</label>
         <select name="geracao" id="geracao">
@@ -29,16 +28,17 @@
             <option value="other">Outros</option>
         </select>
         <br><br>
-        <input type="submit" value="Submit">
+        <input type="button" onclick="reloadMap()" value="Filtrar">
     </form>
+    <div id='mapDIV'></div>
 <script>
-    let mbAttr = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
-    let mbUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-    let basemap = L.tileLayer(mbUrl, {
+    const mbAttr = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
+    const mbUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+    const basemap = L.tileLayer(mbUrl, {
         id: 'mapbox.streets',
         attribution: mbAttr
     });
-    let map = L.map(document.getElementById('mapDIV'), { center: [-14.2350, -51.9253], zoom: 5, layers: [basemap] });
+    var map = L.map(document.getElementById('mapDIV'), { center: [-14.2350, -51.9253], zoom: 5, layers: [basemap] });
     const keyVal = {
         hidro: "Hidrelétrica",
         eol: "Eólica",
@@ -47,26 +47,36 @@
         waste: "Waste",
         other: "Outros"
     }
-    let energypp = L.geoJSON(energy, {
-        pointToLayer: (feature, latlng) => {
-            let energyIcon = L.icon({
-                iconSize: [20, 30],
-                iconAnchor: [13, 27],
-                popupAnchor:  [1, -24],
-                iconUrl: './energy.png'
-            });
-            return L.marker(latlng, { icon: energyIcon })
-        },
-        onEachFeature: (feature, layer) => {
-            layer.addEventListener("mouseover", () => { 
-                layer.bindPopup(`Nome: ${feature.properties.name}<br> Tipo de Geração: ${feature.properties.primary_fuel}<br> Capacidade: ${feature.properties.capacity_mw}MW`)
-            });
-        },
-        filter: (feature) => {
-            const tipoGeracao = document.getElementById('geracao').value;
-            return tipoGeracao === 'all' ? true : feature.properties.primary_fuel === keyVal[tipoGeracao]
-        }
-    }).addTo(map);
+    var energyLayer; 
+    function reloadMap() {
+        map.removeLayer(energyLayer);
+        loadEnergyGeoJson();
+    }
+
+    function loadEnergyGeoJson() {
+        energyLayer = L.geoJSON(energy, {
+            pointToLayer: (feature, latlng) => {
+                let energyIcon = L.icon({
+                    iconSize: [20, 30],
+                    iconAnchor: [13, 27],
+                    popupAnchor:  [1, -24],
+                    iconUrl: './energy.png'
+                });
+                return L.marker(latlng, { icon: energyIcon })
+            },
+            onEachFeature: (feature, layer) => {
+                layer.addEventListener("mouseover", () => { 
+                    layer.bindPopup(`Nome: ${feature.properties.name}<br> Tipo de Geração: ${feature.properties.primary_fuel}<br> Capacidade: ${feature.properties.capacity_mw}MW`)
+                });
+            },
+            filter: (feature) => {
+                const tipoGeracao = document.getElementById('geracao').value;
+                return tipoGeracao === 'all' ? true : feature.properties.primary_fuel === keyVal[tipoGeracao]
+            }
+        }).addTo(map);
+    }
+
+    loadEnergyGeoJson();
 </script>
 </body>
 </html>
